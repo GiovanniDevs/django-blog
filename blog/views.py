@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.contrib import messages
+from django.contrib.auth.models import User
 from .models import Post
 from .forms import CommentForm
 # Create your views here.
@@ -32,6 +33,7 @@ def post_detail(request, slug):
     comment_count = post.comments.filter(approved=True).count()
 
     if request.method == "POST":
+        print('received POST request')
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
@@ -45,6 +47,8 @@ def post_detail(request, slug):
 
     comment_form = CommentForm()
 
+    print('about to render template')
+
     return render(
         request,
         "blog/post_detail.html",
@@ -53,3 +57,9 @@ def post_detail(request, slug):
          "comment_count": comment_count,
          "comment_form": comment_form, },
     )
+
+
+def profile_page(request):
+    user = get_object_or_404(User, user=request.user)
+    # Retrieve all comments for the user object
+    comments = user.commenter.all()
